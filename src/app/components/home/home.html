@@ -1,0 +1,19 @@
+<div class="p-8 flex flex-col items-center">
+  <mat-grid-list [cols]="cols" rowHeight="1:1" gutterSize="16px" class="w-full max-w-6xl">
+    <mat-grid-tile [routerLink]="['/customers']">
+      <mat-card class="dashboard-tile" color="primary">
+        <mat-icon>app_registration</mat-icon>
+        <mat-card-title>Gerenciar Cadastros</mat-card-title>
+        <mat-card-subtitle>Gerenciar cadastro de cidadões</mat-card-subtitle>
+      </mat-card>
+    </mat-grid-tile>
+
+    <mat-grid-tile [routerLink]="['/users']">
+      <mat-card class="dashboard-tile">
+        <mat-icon>groups</mat-icon>
+        <mat-card-title>Gerenciar Usuários</mat-card-title>
+        <mat-card-subtitle>Gerenciar usuários e permissões</mat-card-subtitle>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>
