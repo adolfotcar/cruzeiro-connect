@@ -1,0 +1,9 @@
+<h1 mat-dialog-title>Confirmar Exclusão</h1>
+<div mat-dialog-content>
+  <p>Você tem certeza que deseja excluir o cidadão "{{data.customerName}}"?</p>
+  <p>Esta ação não pode ser desfeita.</p>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="false">Cancelar</button>
+  <button mat-flat-button color="warn" [mat-dialog-close]="true" cdkFocusInitial>Excluir</button>
+</div>

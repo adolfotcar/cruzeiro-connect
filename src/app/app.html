@@ -1,5 +1,5 @@
 <mat-toolbar>
-  <span>Cruzeiro Connect</span>
+  <span><a routerLink="/"> Cruzeiro Connect</a></span>
   <span class="spacer"></span>
   @if (user$ | async; as user) {
     <span class="user-mail">{{ user.email }}</span>

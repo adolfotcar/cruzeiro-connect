@@ -8,10 +8,11 @@ import { AsyncPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatToolbarModule, AsyncPipe, MatIconModule, MatButtonModule, MatTooltipModule],
+  imports: [RouterOutlet, MatToolbarModule, AsyncPipe, MatIconModule, MatButtonModule, MatTooltipModule, RouterLink],
   templateUrl: './app.html',
   styleUrl: './app.sass'
 })

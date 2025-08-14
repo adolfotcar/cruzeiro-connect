@@ -1,0 +1,125 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Registro de Cidadão</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <mat-form-field class="form-field">
+          <mat-label>Nome</mat-label>
+          <input matInput formControlName="name" required>
+          @if (customerForm.get('name')?.hasError('required')) {
+            <mat-error>
+                Nome é mandatório
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field class="form-field">
+          <mat-label>Sobrenome</mat-label>
+          <input matInput formControlName="surname" required>
+          @if (customerForm.get('surname')?.hasError('required')) {
+            <mat-error>
+              Sobrenome é mandatório
+            </mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field class="form-field">
+          <mat-label>Identidade (RG)</mat-label>
+          <input matInput formControlName="identity">
+        </mat-form-field>
+
+        <mat-form-field class="form-field">
+          <mat-label>CPF</mat-label>
+          <input matInput formControlName="cpf" required>
+          @if (customerForm.get('cpf')?.hasError('required')) {
+            <mat-error>
+              CPF é mandatório
+            </mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field class="form-field">
+          <mat-label>Cartão SUS</mat-label>
+          <input matInput formControlName="sus">
+        </mat-form-field>
+
+        <mat-form-field class="form-field">
+          <mat-label>Telefone</mat-label>
+          <input matInput formControlName="phone" required>
+          @if (customerForm.get('phone')?.hasError('required')) {
+            <mat-error>
+              Telefone é mandatório
+            </mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-form-field class="full-width">
+        <mat-label>Endereço</mat-label>
+        <input matInput formControlName="address1">
+      </mat-form-field>
+
+      <mat-form-field class="full-width">
+        <mat-label>Bairro</mat-label>
+        <input matInput formControlName="address2">
+      </mat-form-field>
+
+      <mat-form-field class="full-width">
+        <mat-label>Cidade</mat-label>
+        <input matInput formControlName="address3">
+      </mat-form-field>
+
+      <mat-form-field class="full-width">
+        <mat-label>Complemento</mat-label>
+        <input matInput formControlName="address4">
+      </mat-form-field>
+
+      <div class="form-row">
+        <mat-form-field class="form-field">
+          <mat-label>Renda Mensal</mat-label>
+          <input matInput type="number" formControlName="monthly_income">
+          @if (customerForm.get('monthly_income')?.hasError('pattern')) {
+            <mat-error>
+              Por favor, insira uma renda válida
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field class="form-field">
+          <mat-label>Proffisão</mat-label>
+          <input matInput formControlName="profession">
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field class="form-field">
+          <mat-label>Etnia</mat-label>
+          <input matInput formControlName="ethnicity">
+        </mat-form-field>
+
+        <mat-form-field class="form-field">
+          <mat-label>Setor</mat-label>
+          <mat-select formControlName="sector" multiple required>
+            <mat-option *ngFor="let sector of sectors" [value]="sector.value">{{sector.viewValue}}</mat-option>
+          </mat-select>
+          @if (customerForm.get('sector')?.hasError('required')) {
+            <mat-error>
+              Selecione ao menos um setor
+            </mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-card-actions>
+        <button matButton="tonal" type="button" routerLink="/customers" class="mg-r-10-p">Cancelar</button>
+        <button matButton="filled" type="submit" [disabled]="!customerForm.valid">Salvar</button>
+      </mat-card-actions>
+    </form>
+  </mat-card-content>
+</mat-card>
