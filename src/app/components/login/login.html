@@ -7,8 +7,9 @@
       }
     </mat-card-subtitle>
   </mat-card-header>
+  <form class="login-form" (ngSubmit)="doLogin()">
   <mat-card-content>
-    <form class="login-form">
+    
       <mat-form-field class="full-width">
         <mat-label>Email</mat-label>
         <input matInput placeholder="Digite seu email" [(ngModel)]="email" name="email">
@@ -18,10 +19,10 @@
         <mat-label>Senha</mat-label>
         <input matInput type="password" placeholder="Digite sua senha" [(ngModel)]="password" name="password">
       </mat-form-field>
-    </form>
   </mat-card-content>
 
   <mat-card-actions>
-    <button matButton="filled" (click)="doLogin()" [disabled]="doingLogin">Login</button>
+    <button matButton="filled" type="submit" [disabled]="doingLogin">Login</button>
   </mat-card-actions>
+  </form>
 </mat-card>

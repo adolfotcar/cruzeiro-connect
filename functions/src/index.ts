@@ -38,7 +38,7 @@ exports.addUser = functions.https.onCall(async (request: UserRequestData|any) =>
             displayName: data.name,
         });
 
-        admin.firestore().collection('users').doc(userRecord.uid).set({
+        await admin.firestore().collection('users').doc(userRecord.uid).set({
             email_address: data.email,
             name: data.name,
             is_admin: data.is_admin,
@@ -77,6 +77,7 @@ exports.changePassword = functions.https.onCall(async (request: UserRequestData|
         );
     }
 
+    //validating
     if (!data.password) {
         throw new functions.https.HttpsError(
         "invalid-argument",
@@ -84,15 +85,17 @@ exports.changePassword = functions.https.onCall(async (request: UserRequestData|
         );
     }
 
-    admin.auth().updateUser(auth.uid, {
-        password: data.password
-    }).then((user: any) => {
+    try {
+        await admin.auth().updateUser(auth.uid, {
+            password: data.password
+        });
         return {
-            message: `Successfully updated password: ${user.uid}`,
+            message: `Successfully updated password: ${auth.email}`,
         }    
-    }).catch((error: any) => {
-        throw new functions.https.HttpsError("internal", "Error updating password.");
-    });
+    } catch(error) {
+        console.error("Error updating password:", error);
+        throw new functions.https.HttpsError("internal", "Error updating the password.");
+    }
 });
 
 exports.updateUser = functions.https.onCall(async (request: UserRequestData|any) => {
@@ -108,25 +111,23 @@ exports.updateUser = functions.https.onCall(async (request: UserRequestData|any)
     }
 
     try {
-        admin.firestore().collection('users').doc(data.uid).update({
+        await admin.firestore().collection('users').doc(data.uid).update({
             name: data.name,
             is_admin: data.is_admin,
             sectors: data.sectors
-        }).then(() => {
-            admin.auth().setCustomUserClaims(auth.uid, {
+        });
+    
+        //setting the claim
+        await admin.auth().setCustomUserClaims(data.uid, {
                 admin: data.is_admin
-            }).then(() => {
-                return {
-                    message: `Successfully updated user: ${data.uid}`,
-                }
-            }).catch((error: any) => {
-                throw new functions.https.HttpsError("internal", `Error saving claims for user.`);
             });
-        }).catch((error: any) => { 
-            throw new functions.https.HttpsError("internal", `Error updating user.`);
-        });            
+        return {
+            message: `Successfully updated user: ${data.is_admin}`,
+        }
+        
     } catch (error: any) {
-        throw new functions.https.HttpsError("internal", `Error updating user.`);
+        console.error("Error updating user details:", error);
+        throw new functions.https.HttpsError("internal", `Error updating details.`);
     }
 });
 
@@ -150,12 +151,14 @@ exports.delUser = functions.https.onCall(async (request: UserRequestData|any) =>
         );
     }
 
-    await admin.auth().deleteUser(data.uid);
-    admin.firestore().collection('users').doc(data.uid).delete().then(() => {
+    try {
+        await admin.auth().deleteUser(data.uid);
+        await admin.firestore().collection('users').doc(data.uid).delete();
         return {
             message: `Successfully removed user: ${data.uid}`,
         }
-    }).catch((error: any) => {
+    }catch(error) {
+        console.error("Error removing user", error);
         throw new functions.https.HttpsError("internal", `Error removing user.`);
-    });
+    };
 });
