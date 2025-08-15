@@ -17,6 +17,7 @@ import { DeleteConfirmationDialogComponent } from '../../delete-confirmation/del
 import { AppUser } from '../../../models/app-user';
 import { AuthService } from '../../../services/auth';
 import { Observable } from 'rxjs';
+import { Functions, httpsCallable } from '@angular/fire/functions';
 
 @Component({
   selector: 'app-users-list',
@@ -47,6 +48,7 @@ export class UsersList implements OnInit, AfterViewInit {
   private snackBar = inject(MatSnackBar);
   private usersCollection = collection(this.firestore, 'users');
   private users$ = collectionData(this.usersCollection, { idField: 'id' });
+  private functions = inject(Functions);
 
   protected readonly loggedUser$: Observable<AppUser | null>;
 
@@ -80,15 +82,6 @@ export class UsersList implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
-
   editUser(user: AppUser): void {
     this.router.navigate([`/user/${user.id}`]);
   }
@@ -100,13 +93,13 @@ export class UsersList implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && user.id) {
-        runInInjectionContext(this.injector, () => {
-          const userDocRef = doc(this.firestore, `users/${user.id}`);
-          deleteDoc(userDocRef).then(() => {
-            this.snackBar.open('Usuário removido com sucesso.', 'Fechar', { duration: 3000 });
-          }).catch(() => {
-            this.snackBar.open('Erro ao remover usuário!', 'Fechar', { duration: 3000 });
-          });
+        const updateUser = httpsCallable(this.functions, 'delUser');
+        updateUser({
+          uid: user.id,
+        }).then(()=>{
+          this.snackBar.open('Usuário removido!', 'Fechar', { duration: 3000 });
+        }).catch(error => {
+          this.snackBar.open('Erro ao salvar dados!', 'Fechar', { duration: 3000 });
         });
       }
     });

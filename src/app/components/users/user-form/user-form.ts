@@ -20,6 +20,7 @@ import { Auth, createUserWithEmailAndPassword, updatePassword } from '@angular/f
 import { Observable } from 'rxjs';
 import { AppUser } from '../../../models/app-user';
 import { AuthService } from '../../../services/auth';
+import { Functions, httpsCallable } from '@angular/fire/functions';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('password');
@@ -57,7 +58,7 @@ export class UserForm implements OnInit{
   private router = inject(Router);
   private injector = inject(Injector);
   private snackBar = inject(MatSnackBar);
-  private auth = inject(Auth);
+  private functions = inject(Functions);
 
   protected readonly loggedUser$: Observable<AppUser | null>;
 
@@ -76,7 +77,9 @@ export class UserForm implements OnInit{
     email_address: {value: '', disabled: this.route.snapshot.paramMap.get('id')!=null},
     name: [''],
     is_admin: [false],
-    sectors: [[]]
+    sectors: [[]],
+    password: [''],
+    password_confirmation: ['']
   });
 
   passwordForm: FormGroup = this.fb.group({
@@ -111,66 +114,56 @@ export class UserForm implements OnInit{
     });
   }
 
-  onSubmit() {
+  onSubmit(){
     this.isSaving = true;
-    if (this.userForm.invalid) {
-      this.isSaving = false;
-      return;
-    }
 
-    if (this.userId) {
-      runInInjectionContext(this.injector, () => {
-        const userDocRef = doc(this.firestore, 'users', this.userId!);
-        updateDoc(userDocRef, this.userForm.value).then(() => {
-          this.savedSuccess();
-        }).catch(error => {
-          this.savedError();
-        });
-      });
+    if (this.userId){
+      this.updateUser();
     } else {
-      runInInjectionContext(this.injector, () => {
-        createUserWithEmailAndPassword(this.auth, 
-                                      this.userForm.value.email_address, 
-                                      'randomPass123')
-        .then(cred => {
-          const userDocRef = doc(this.firestore, 'users', cred.user.uid);
-          return setDoc(userDocRef, {
-            email_address: this.userForm.value.email_address,
-            name: this.userForm.value.name,
-            is_admin: this.userForm.value.is_admin,
-            sectors: this.userForm.value.sectors
-          });
-        }).then(() => {
-          this.savedSuccess()
-        }).catch(error => {
-          this.savedError();
-        });
-      });
+      this.createUser();
     }
   }
 
+  createUser(){
+    const addUser = httpsCallable(this.functions, 'addUser');
+    addUser({
+      email: this.userForm.value.email_address,
+      password: this.userForm.value.password,
+      name: this.userForm.value.name,
+      is_admin: this.userForm.value.is_admin,
+      sectors: this.userForm.value.sectors
+    }).then(()=>{
+      this.savedSuccess();
+    }).catch(error => {
+      this.savedError();
+    });
+  }
+
+  updateUser(){
+    const updateUser = httpsCallable(this.functions, 'updateUser');
+    updateUser({
+      uid: this.userId,
+      email: this.userForm.value.email_address,
+      name: this.userForm.value.name,
+      is_admin: this.userForm.value.is_admin,
+      sectors: this.userForm.value.sectors
+    }).then(()=>{
+      this.savedSuccess();
+    }).catch(error => {
+      this.savedError();
+    });
+  }
+
   updatePassword(){
-    this.isSaving = true;
-    if (this.passwordForm.invalid) {
-      this.isSaving = false;
-      return;
-    } 
-
-    const userToUpdate = this.auth.currentUser;
-
-    if (!userToUpdate) {
-      this.savedError('Nenhum usuário logado encontrado.');
-      return;
-    }
-
-    runInInjectionContext(this.injector, () => {
-      updatePassword(userToUpdate, this.passwordForm.value.password)
-        .then(() => {
-          this.savedSuccess('Senha alterada com sucesso!')
-        }).catch(error => {
-          this.savedError('Erro ao alterar a senha. Pode ser necessário um login recente.');
-        });
-      });
+    const updateUser = httpsCallable(this.functions, 'changePassword');
+    updateUser({
+      uid: this.userId,
+      password: this.passwordForm.value.password
+    }).then(()=>{
+      this.savedSuccess();
+    }).catch(error => {
+      this.savedError();
+    });
   }
 
   private savedSuccess(message: string = 'Usuário salvo com sucesso!'){

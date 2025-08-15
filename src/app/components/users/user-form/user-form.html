@@ -36,6 +36,20 @@
                         <mat-checkbox formControlName="is_admin" class="form-field">Administrador?</mat-checkbox>
                     </div>
 
+                    @if (!userId) {
+                        <div class="form-row">
+                            <mat-form-field class="form-field">
+                            <mat-label>Senha</mat-label>
+                            <input matInput formControlName="password" type="password">
+                            </mat-form-field>
+                            <mat-form-field class="form-field">
+                            <mat-label>Confirmação</mat-label>
+                            <input matInput formControlName="password_confirmation" type="password">
+                            </mat-form-field>
+                            
+                        </div>
+                    }
+
                     <mat-card-actions>
                         <button matFab extended type="button" routerLink="/users" class="mg-r-10-p">
                         <mat-icon>cancel</mat-icon>
