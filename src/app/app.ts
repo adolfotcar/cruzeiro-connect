@@ -3,12 +3,12 @@ import { Router, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { AuthService } from './services/auth';
 import { Observable } from 'rxjs';
-import { User } from 'firebase/auth';
 import { AsyncPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from "@angular/router";
+import { AppUser } from './models/app-user';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +18,7 @@ import { RouterLink } from "@angular/router";
 })
 export class App {
   protected readonly title = signal('cruzeiro-connect');
-  protected readonly user$: Observable<User | null>;
+  protected readonly user$: Observable<AppUser | null>;
 
   constructor(private authSvc: AuthService, private router: Router) {
     this.user$ = this.authSvc.user$;

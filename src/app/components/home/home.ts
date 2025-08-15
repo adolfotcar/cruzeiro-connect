@@ -3,6 +3,9 @@ import { MatCardModule } from '@angular/material/card';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { AuthService } from '../../services/auth';
+import { Observable } from 'rxjs';
+import { AppUser } from '../../models/app-user';
 
 @Component({
   selector: 'app-home',

@@ -1,0 +1,111 @@
+<mat-tab-group>
+@if(loggedUser$ | async; as user){
+    @if (user.is_admin) {
+        <mat-tab label="Dados do Usuário"> 
+            <mat-card>
+                <mat-card-content>
+                    @if(isLoading) {
+                    <div class=".spinner-container">
+                        <mat-spinner></mat-spinner>
+                    </div>
+                    } @else {
+                    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+                    <div class="form-row">
+                        <mat-form-field class="form-field">
+                        <mat-label>Email</mat-label>
+                        <input matInput formControlName="email_address">
+                        </mat-form-field>
+
+                        <mat-form-field class="form-field">
+                        <mat-label>Nome</mat-label>
+                        <input matInput formControlName="name">
+                        </mat-form-field>
+                        
+                    </div>
+
+                    <div class="form-row">
+                        <mat-form-field class="form-field">
+                        <mat-label>Setor</mat-label>
+                        <mat-select formControlName="sectors" multiple>
+                            <mat-option *ngFor="let sector of sectors" [value]="sector.value">{{sector.viewValue}}</mat-option>
+                        </mat-select>
+                        <mat-hint>
+                            Deixe em branco para que o usuário possa ver cidadãos de todos os setores
+                        </mat-hint>
+                        </mat-form-field>
+                        <mat-checkbox formControlName="is_admin" class="form-field">Administrador?</mat-checkbox>
+                    </div>
+
+                    <mat-card-actions>
+                        <button matFab extended type="button" routerLink="/users" class="mg-r-10-p">
+                        <mat-icon>cancel</mat-icon>
+                        Cancelar
+                        </button>
+                        <button matFab extended type="submit" [disabled]="!userForm.valid || isSaving" class=" btn-primary">
+                        @if (isSaving) {
+                            <mat-spinner diameter="20"></mat-spinner> 
+                        } @else {
+                            <mat-icon>save</mat-icon>
+                        }
+                        Salvar
+                        </button>
+                    </mat-card-actions>
+                    </form>
+                }
+                </mat-card-content>
+            </mat-card>
+        </mat-tab>
+    }
+    @if((userId) && (user.uid==userId)){
+        <mat-tab label="Alterar Senha">
+            <mat-card>
+                <mat-card-content>
+                    @if(isLoading) {
+                    <div class=".spinner-container">
+                        <mat-spinner></mat-spinner>
+                    </div>
+                    } @else {
+                    <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()">
+
+                    <div class="form-row">
+                        <mat-form-field class="form-field">
+                        <mat-label>Senha</mat-label>
+                        <input matInput formControlName="password" type="password">
+                        @if(userId) {
+                            <mat-hint>
+                                Deixe em branco caso não queira alterar a senha
+                            </mat-hint>
+                        }
+                        </mat-form-field>
+                        <mat-form-field class="form-field">
+                        <mat-label>Confirmação</mat-label>
+                        <input matInput formControlName="password_confirmation" type="password">
+                        @if (passwordForm.hasError('passwordMismatch')) {
+                            <mat-error>As senhas não conferem</mat-error>
+                        }
+                        </mat-form-field>
+                        
+                    </div>
+
+                    <mat-card-actions>
+                        <button matFab extended type="button" routerLink="/users" class="mg-r-10-p" [disabled]="isSaving">
+                        <mat-icon>cancel</mat-icon>
+                        Cancelar
+                        </button>
+                        <button matFab extended type="submit" [disabled]="!passwordForm.valid || isSaving" class=" btn-primary">
+                        @if (isSaving) {
+                            <mat-spinner diameter="20"></mat-spinner> 
+                        } @else {
+                            <mat-icon>save</mat-icon>
+                        }
+                        Salvar
+                        </button>
+                    </mat-card-actions>
+                    </form>
+                }
+                </mat-card-content>
+            </mat-card>
+        </mat-tab>
+    }
+}
+</mat-tab-group>

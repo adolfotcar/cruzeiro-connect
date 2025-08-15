@@ -1,0 +1,52 @@
+<div class="list-header">
+  <h1>Cidadãos</h1>
+  <button matButton="filled" routerLink="/user" class="mg-r-10-p">
+    <mat-icon>add</mat-icon>
+    Adicionar Usuário
+  </button>
+</div>
+
+@if(isLoading) {
+  <div class=".spinner-container">
+    <mat-spinner></mat-spinner>
+  </div>
+}
+
+<div class="mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource" matSort>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Nome? </th>
+      <td mat-cell *matCellDef="let user"> {{ user.name}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="is_admin">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Administrador? </th>
+      <td mat-cell *matCellDef="let user"> {{ user.is_admin? 'Sim' : 'Não'}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="sectors">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Setores </th>
+      <td mat-cell *matCellDef="let user"> {{user.sectors}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Editar/Remover </th>
+        <td mat-cell *matCellDef="let user">  
+            <button matMiniFab (click)="editUser(user)" class="mg-r-10-p btn-primary">
+                <mat-icon>border_color</mat-icon>
+            </button>
+            @if(userIsAdmin){
+              <button matMiniFab (click)="deleteUser(user)" class="btn-warn">
+                  <mat-icon>delete</mat-icon>
+              </button>
+            }
+        </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[50, 100, 200]" showFirstLastButtons aria-label="Select page of users"></mat-paginator>
+</div>
