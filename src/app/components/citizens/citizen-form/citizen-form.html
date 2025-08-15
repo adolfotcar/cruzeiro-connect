@@ -3,12 +3,12 @@
     <mat-card-title>Registro de Cidadão</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="citizenForm" (ngSubmit)="onSubmit()">
       <div class="form-row">
         <mat-form-field class="form-field">
           <mat-label>Nome</mat-label>
           <input matInput formControlName="name" required>
-          @if (customerForm.get('name')?.hasError('required')) {
+          @if (citizenForm.get('name')?.hasError('required')) {
             <mat-error>
                 Nome é mandatório
             </mat-error>
@@ -18,7 +18,7 @@
         <mat-form-field class="form-field">
           <mat-label>Sobrenome</mat-label>
           <input matInput formControlName="surname" required>
-          @if (customerForm.get('surname')?.hasError('required')) {
+          @if (citizenForm.get('surname')?.hasError('required')) {
             <mat-error>
               Sobrenome é mandatório
             </mat-error>
@@ -35,7 +35,7 @@
         <mat-form-field class="form-field">
           <mat-label>CPF</mat-label>
           <input matInput formControlName="cpf" required>
-          @if (customerForm.get('cpf')?.hasError('required')) {
+          @if (citizenForm.get('cpf')?.hasError('required')) {
             <mat-error>
               CPF é mandatório
             </mat-error>
@@ -52,7 +52,7 @@
         <mat-form-field class="form-field">
           <mat-label>Telefone</mat-label>
           <input matInput formControlName="phone" required>
-          @if (customerForm.get('phone')?.hasError('required')) {
+          @if (citizenForm.get('phone')?.hasError('required')) {
             <mat-error>
               Telefone é mandatório
             </mat-error>
@@ -84,7 +84,7 @@
         <mat-form-field class="form-field">
           <mat-label>Renda Mensal</mat-label>
           <input matInput type="number" formControlName="monthly_income">
-          @if (customerForm.get('monthly_income')?.hasError('pattern')) {
+          @if (citizenForm.get('monthly_income')?.hasError('pattern')) {
             <mat-error>
               Por favor, insira uma renda válida
             </mat-error>
@@ -108,7 +108,7 @@
           <mat-select formControlName="sector" multiple required>
             <mat-option *ngFor="let sector of sectors" [value]="sector.value">{{sector.viewValue}}</mat-option>
           </mat-select>
-          @if (customerForm.get('sector')?.hasError('required')) {
+          @if (citizenForm.get('sector')?.hasError('required')) {
             <mat-error>
               Selecione ao menos um setor
             </mat-error>
@@ -117,8 +117,8 @@
       </div>
 
       <mat-card-actions>
-        <button matButton="tonal" type="button" routerLink="/customers" class="mg-r-10-p">Cancelar</button>
-        <button matButton="filled" type="submit" [disabled]="!customerForm.valid">Salvar</button>
+        <button matButton="tonal" type="button" routerLink="/citizens" class="mg-r-10-p">Cancelar</button>
+        <button matButton="filled" type="submit" [disabled]="!citizenForm.valid">Salvar</button>
       </mat-card-actions>
     </form>
   </mat-card-content>

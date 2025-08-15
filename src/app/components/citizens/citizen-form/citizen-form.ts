@@ -12,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 @Component({
-  selector: 'app-customer-form',
+  selector: 'app-citizen-form',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -23,17 +23,17 @@ import { MatSelectModule } from '@angular/material/select';
     MatSelectModule,
     RouterLink
   ],
-  templateUrl: './customer-form.html',
-  styleUrl: './customer-form.sass'
+  templateUrl: './citizen-form.html',
+  styleUrl: './citizen-form.sass'
 })
-export class CustomerForm implements OnInit {
+export class CitizenForm implements OnInit {
   private fb = inject(FormBuilder);
   private firestore: Firestore = inject(Firestore);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  private customersCollection = collection(this.firestore, 'customers');
-  private customerId: string | null = null;
+  private citizensCollection = collection(this.firestore, 'citizens');
+  private citizenId: string | null = null;
 
   sectors = [
     { value: 'juridico', viewValue: 'Jurídico' },
@@ -42,7 +42,7 @@ export class CustomerForm implements OnInit {
     { value: 'administrativo', viewValue: 'Administrativo' },
   ];
 
-  customerForm: FormGroup = this.fb.group({
+  citizenForm: FormGroup = this.fb.group({
     name: ['', Validators.required],
     surname: ['', Validators.required],
     identity: [''],
@@ -60,40 +60,40 @@ export class CustomerForm implements OnInit {
   });
 
   ngOnInit(): void {
-    this.customerId = this.route.snapshot.paramMap.get('id');
-    if (this.customerId) {
-      this.loadCustomerData(this.customerId);
+    this.citizenId = this.route.snapshot.paramMap.get('id');
+    if (this.citizenId) {
+      this.loadCitizenData(this.citizenId);
     }
   }
 
-  private async loadCustomerData(id: string): Promise<void> {
-    const customerDocRef = doc(this.firestore, 'customers', id);
-    const customerDocSnap = await getDoc(customerDocRef);
+  private async loadCitizenData(id: string): Promise<void> {
+    const citizenDocRef = doc(this.firestore, 'citizens', id);
+    const citizenDocSnap = await getDoc(citizenDocRef);
 
-    if (customerDocSnap.exists()) {
-      this.customerForm.patchValue(customerDocSnap.data());
+    if (citizenDocSnap.exists()) {
+      this.citizenForm.patchValue(citizenDocSnap.data());
     } else {
-      console.error(`Customer with id ${id} not found.`);
+      console.error(`Citizen with id ${id} not found.`);
       // Optionally navigate to a 'not-found' page or back to the list
-      this.router.navigate(['/customers']);
+      this.router.navigate(['/citizens']);
     }
   }
 
   async onSubmit(): Promise<void> {
-    if (this.customerForm.invalid) {
+    if (this.citizenForm.invalid) {
       return;
     }
 
     try {
-      if (this.customerId) {
-        const customerDocRef = doc(this.firestore, 'customers', this.customerId);
-        await updateDoc(customerDocRef, this.customerForm.value);
+      if (this.citizenId) {
+        const citizenDocRef = doc(this.firestore, 'citizens', this.citizenId);
+        await updateDoc(citizenDocRef, this.citizenForm.value);
       } else {
-        await addDoc(this.customersCollection, this.customerForm.value);
+        await addDoc(this.citizensCollection, this.citizenForm.value);
       }
-      this.router.navigate(['/customers']); // Navigate to list after save/update
+      this.router.navigate(['/citizens']); // Navigate to list after save/update
     } catch (error) {
-      console.error('Error saving customer data:', error);
+      console.error('Error saving citizen data:', error);
     }
   }
 }

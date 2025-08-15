@@ -14,7 +14,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DeleteConfirmationDialogComponent } from '../../delete-confirmation/delete-confirmation';
 
-interface Customer {
+interface Citizen {
   id?: string;
   name: string;
   surname: string;
@@ -33,7 +33,7 @@ interface Customer {
 }
 
 @Component({
-  selector: 'app-customer-list',
+  selector: 'app-citizens-list',
   standalone: true,
   imports: [
     MatButtonModule,
@@ -48,27 +48,27 @@ interface Customer {
     MatTooltipModule,
     MatProgressSpinnerModule
   ],
-  templateUrl: './customer-list.html',
-  styleUrl: './customer-list.sass'
+  templateUrl: './citizens-list.html',
+  styleUrl: './citizens-list.sass'
 })
-export class CustomerList implements OnInit, AfterViewInit {
+export class CitizenList implements OnInit, AfterViewInit {
 
   private dialog = inject(MatDialog);
   private firestore: Firestore = inject(Firestore);
   private router = inject(Router);
-  private customersCollection = collection(this.firestore, 'customers');
-  private customers$ = collectionData(this.customersCollection, { idField: 'id' });
+  private citizensCollection = collection(this.firestore, 'citizens');
+  private citizens$ = collectionData(this.citizensCollection, { idField: 'id' });
 
   displayedColumns: string[] = ['name', 'surname', 'cpf', 'phone', 'ethnicity', 'actions'];
-  dataSource = new MatTableDataSource<Customer>();
+  dataSource = new MatTableDataSource<Citizen>();
   isLoading = true;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    this.customers$.subscribe(customers => {
-      this.dataSource.data = customers as Customer[];
+    this.citizens$.subscribe(citizens => {
+      this.dataSource.data = citizens as Citizen[];
       this.isLoading = false;
     });
   }
@@ -87,19 +87,19 @@ export class CustomerList implements OnInit, AfterViewInit {
     }
   }
 
-  editCustomer(customer: Customer): void {
-    this.router.navigate([`/customer/${customer.id}`]);
+  editCitizen(citizine: Citizen): void {
+    this.router.navigate([`/citizen/${citizine.id}`]);
   }
 
-  deleteCustomer(customer: Customer): void {
+  deleteCitizen(citizen: Citizen): void {
     const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
-      data: { customerName: `${customer.name} ${customer.surname}` },
+      data: { citizenName: `${citizen.name} ${citizen.surname}` },
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result && customer.id) {
-        const customerDocRef = doc(this.firestore, `customers/${customer.id}`);
-        deleteDoc(customerDocRef);
+      if (result && citizen.id) {
+        const citizenDocRef = doc(this.firestore, `citizens/${citizen.id}`);
+        deleteDoc(citizenDocRef);
       }
     });
   }

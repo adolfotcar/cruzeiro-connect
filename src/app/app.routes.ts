@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 import { Login as LoginComponent } from './components/login/login';
 import { Home as HomeComponent } from './components/home/home'; 
-import { CustomerList as CustomerListComponent } from './components/customers/customer-list/customer-list';
-import { CustomerForm as CustomerFormComponent } from './components/customers/customer-form/customer-form';
+import { CitizenList as CitizenListComponent } from './components/citizens/citizens-list/citizens-list';
+import { CitizenForm as CitizenFormComponent } from './components/citizens/citizen-form/citizen-form';
 import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
@@ -10,7 +10,7 @@ export const routes: Routes = [
     { path: 'home', component: HomeComponent, canActivate: [authGuard] },
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     
-    { path: 'customers', component: CustomerListComponent, canActivate: [authGuard]},
-    { path: 'customer', component: CustomerFormComponent, canActivate: [authGuard] },
-    { path: 'customer/:id', component: CustomerFormComponent, canActivate: [authGuard] }
+    { path: 'citizens', component: CitizenListComponent, canActivate: [authGuard]},
+    { path: 'citizne', component: CitizenFormComponent, canActivate: [authGuard] },
+    { path: 'citizen/:id', component: CitizenFormComponent, canActivate: [authGuard] }
 ];
