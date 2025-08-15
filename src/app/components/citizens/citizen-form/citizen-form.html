@@ -3,6 +3,11 @@
     <mat-card-title>Registro de Cidadão</mat-card-title>
   </mat-card-header>
   <mat-card-content>
+    @if(isLoading) {
+      <div class=".spinner-container">
+        <mat-spinner></mat-spinner>
+      </div>
+    } @else {
     <form [formGroup]="citizenForm" (ngSubmit)="onSubmit()">
       <div class="form-row">
         <mat-form-field class="form-field">
@@ -117,9 +122,20 @@
       </div>
 
       <mat-card-actions>
-        <button matButton="tonal" type="button" routerLink="/citizens" class="mg-r-10-p">Cancelar</button>
-        <button matButton="filled" type="submit" [disabled]="!citizenForm.valid">Salvar</button>
+        <button matFab extended type="button" routerLink="/citizens" class="mg-r-10-p">
+          <mat-icon>cancel</mat-icon>
+          Cancelar
+        </button>
+        <button matFab extended type="submit" [disabled]="!citizenForm.valid || isSaving" class=" btn-primary">
+          @if (isSaving) {
+            <mat-spinner diameter="20"></mat-spinner> 
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          Salvar
+        </button>
       </mat-card-actions>
     </form>
+  }
   </mat-card-content>
 </mat-card>

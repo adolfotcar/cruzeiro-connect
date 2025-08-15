@@ -11,6 +11,6 @@ export const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     
     { path: 'citizens', component: CitizenListComponent, canActivate: [authGuard]},
-    { path: 'citizne', component: CitizenFormComponent, canActivate: [authGuard] },
+    { path: 'citizen', component: CitizenFormComponent, canActivate: [authGuard] },
     { path: 'citizen/:id', component: CitizenFormComponent, canActivate: [authGuard] }
 ];

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Injector, OnInit, runInInjectionContext, ViewChild } from '@angular/core';
 import { Firestore, collection, collectionData, deleteDoc, doc } from '@angular/fire/firestore';
 import { Router, RouterLink } from "@angular/router";
 
@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -46,7 +47,8 @@ interface Citizen {
     MatIconModule,
     MatDialogModule,
     MatTooltipModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatSnackBarModule
   ],
   templateUrl: './citizens-list.html',
   styleUrl: './citizens-list.sass'
@@ -56,6 +58,8 @@ export class CitizenList implements OnInit, AfterViewInit {
   private dialog = inject(MatDialog);
   private firestore: Firestore = inject(Firestore);
   private router = inject(Router);
+  private injector = inject(Injector);
+  private snackBar = inject(MatSnackBar);
   private citizensCollection = collection(this.firestore, 'citizens');
   private citizens$ = collectionData(this.citizensCollection, { idField: 'id' });
 
@@ -98,8 +102,14 @@ export class CitizenList implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && citizen.id) {
-        const citizenDocRef = doc(this.firestore, `citizens/${citizen.id}`);
-        deleteDoc(citizenDocRef);
+        runInInjectionContext(this.injector, () => {
+          const citizenDocRef = doc(this.firestore, `citizens/${citizen.id}`);
+          deleteDoc(citizenDocRef).then(() => {
+            this.snackBar.open('Cidadão removido com sucesso.', 'Fechar', { duration: 3000 });
+          }).catch(error => {
+            this.snackBar.open('Erro ao remover cidadão!', 'Fechar', { duration: 3000 });
+          });
+        });
       }
     });
   }

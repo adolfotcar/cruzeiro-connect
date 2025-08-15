@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, Injector, OnInit, runInInjectionContext } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -10,6 +10,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-citizen-form',
@@ -21,6 +24,9 @@ import { MatSelectModule } from '@angular/material/select';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
     RouterLink
   ],
   templateUrl: './citizen-form.html',
@@ -31,9 +37,13 @@ export class CitizenForm implements OnInit {
   private firestore: Firestore = inject(Firestore);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-
+  private injector = inject(Injector);
+  private snackBar = inject(MatSnackBar);
   private citizensCollection = collection(this.firestore, 'citizens');
   private citizenId: string | null = null;
+
+  isLoading = true;
+  isSaving = false;
 
   sectors = [
     { value: 'juridico', viewValue: 'Jurídico' },
@@ -63,37 +73,62 @@ export class CitizenForm implements OnInit {
     this.citizenId = this.route.snapshot.paramMap.get('id');
     if (this.citizenId) {
       this.loadCitizenData(this.citizenId);
-    }
-  }
-
-  private async loadCitizenData(id: string): Promise<void> {
-    const citizenDocRef = doc(this.firestore, 'citizens', id);
-    const citizenDocSnap = await getDoc(citizenDocRef);
-
-    if (citizenDocSnap.exists()) {
-      this.citizenForm.patchValue(citizenDocSnap.data());
     } else {
-      console.error(`Citizen with id ${id} not found.`);
-      // Optionally navigate to a 'not-found' page or back to the list
-      this.router.navigate(['/citizens']);
+      this.isLoading = false;
     }
   }
 
-  async onSubmit(): Promise<void> {
+  private loadCitizenData(id: string){
+    runInInjectionContext(this.injector, () => {
+      const citizenDocRef = doc(this.firestore, 'citizens', id);    
+
+      getDoc(citizenDocRef).then(docSnap => {
+        console.log(docSnap.data());
+        this.citizenForm.patchValue(docSnap.data()!);
+        this.isLoading = false;
+      }).catch(error => {
+        console.error('Error loading citizen data:', error);
+        this.router.navigate(['/citizens']);
+      });
+    });
+  }
+
+  onSubmit() {
+    this.isSaving = true;
     if (this.citizenForm.invalid) {
+      this.isSaving = false;
       return;
     }
 
     try {
       if (this.citizenId) {
-        const citizenDocRef = doc(this.firestore, 'citizens', this.citizenId);
-        await updateDoc(citizenDocRef, this.citizenForm.value);
+        runInInjectionContext(this.injector, () => {
+          const citizenDocRef = doc(this.firestore, 'citizens', this.citizenId!);
+          updateDoc(citizenDocRef, this.citizenForm.value).then(() => {
+            this.savedSuccess();
+          }).catch(error => {
+            this.savedError();
+          });
+        });
       } else {
-        await addDoc(this.citizensCollection, this.citizenForm.value);
+        addDoc(this.citizensCollection, this.citizenForm.value).then(() => {
+          this.savedSuccess();
+        }).catch(error => {
+          this.savedError();
+        });
       }
-      this.router.navigate(['/citizens']); // Navigate to list after save/update
     } catch (error) {
-      console.error('Error saving citizen data:', error);
+      this.savedError();  
     }
+  }
+
+  private savedSuccess(){
+    this.snackBar.open('Cidadão salvo com sucesso!', 'Fechar', { duration: 3000 });
+    this.router.navigate(['/citizens']);
+  }
+
+  private savedError(){
+    this.isSaving = false;
+    this.snackBar.open('Erro ao salvar dados!', 'Fechar', { duration: 3000 });
   }
 }
