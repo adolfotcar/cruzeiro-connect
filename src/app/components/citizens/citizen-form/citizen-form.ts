@@ -2,6 +2,14 @@ import { Component, inject, Injector, OnInit, runInInjectionContext } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import {
+  ref,
+  uploadBytes,
+  deleteObject,
+  listAll,
+  getDownloadURL,
+  Storage,
+} from '@angular/fire/storage';
 
 import { addDoc, collection, doc, getDoc, Firestore, updateDoc } from '@angular/fire/firestore';
 
@@ -13,6 +21,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
 
 @Component({
   selector: 'app-citizen-form',
@@ -27,6 +36,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    MatListModule,
     RouterLink
   ],
   templateUrl: './citizen-form.html',
@@ -35,15 +45,19 @@ import { MatIconModule } from '@angular/material/icon';
 export class CitizenForm implements OnInit {
   private fb = inject(FormBuilder);
   private firestore: Firestore = inject(Firestore);
+  private storage = inject(Storage);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private injector = inject(Injector);
   private snackBar = inject(MatSnackBar);
   private citizensCollection = collection(this.firestore, 'citizens');
-  private citizenId: string | null = null;
+  
+  public citizenId: string | null = null;
+  public isLoading = true;
+  public isSaving = false;
+  public isUploading = false;
 
-  isLoading = true;
-  isSaving = false;
+  public uploadedFiles: { name: string; url: string; fullPath: string }[] = [];
 
   sectors = [
     { value: 'juridico', viewValue: 'Jurídico' },
@@ -119,6 +133,56 @@ export class CitizenForm implements OnInit {
       }
     } catch (error) {
       this.savedError();  
+    }
+  }
+
+  async onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    this.isUploading = true;
+    const filesToUpload = Array.from(input.files);
+    
+    // Ensure we have a citizenId to create the correct path
+    if (!this.citizenId) {
+      this.isUploading = false;
+      this.snackBar.open('Please save the citizen profile before uploading files.', 'Close', { duration: 5000 });
+      return;
+    }
+
+    try {
+      await Promise.all(filesToUpload.map(async (file) => {
+        const filePath = `citizens/${this.citizenId}/files/${file.name}`;
+        const fileRef = ref(this.storage, filePath);
+        const uploadResult = await uploadBytes(fileRef, file);
+        const downloadURL = await getDownloadURL(uploadResult.ref);
+
+        this.uploadedFiles.push({
+          name: file.name,
+          url: downloadURL,
+          fullPath: uploadResult.ref.fullPath,
+        });
+      }));
+
+      this.snackBar.open('Files uploaded successfully!', 'Close', { duration: 3000 });
+    } catch (error) {
+      this.snackBar.open('Error uploading files.', 'Close', { duration: 3000 });
+    } finally {
+      this.isUploading = false;
+    }
+  }
+
+  async removeFile(file: { name: string; url: string; fullPath: string }) {
+    if (!this.citizenId) return;
+
+    const fileRef = ref(this.storage, file.fullPath);
+    try {
+      await deleteObject(fileRef);
+      this.uploadedFiles = this.uploadedFiles.filter((f) => f.fullPath !== file.fullPath);
+      this.snackBar.open('File removed successfully!', 'Close', { duration: 3000 });
+    } catch (error) {
+      console.error('Error removing file:', error);
+      this.snackBar.open('Error removing file.', 'Close', { duration: 3000 });
     }
   }
 

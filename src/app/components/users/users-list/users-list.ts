@@ -93,13 +93,15 @@ export class UsersList implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && user.id) {
-        const updateUser = httpsCallable(this.functions, 'delUser');
-        updateUser({
-          uid: user.id,
-        }).then(()=>{
-          this.snackBar.open('Usuário removido!', 'Fechar', { duration: 3000 });
-        }).catch(error => {
-          this.snackBar.open('Erro ao salvar dados!', 'Fechar', { duration: 3000 });
+        runInInjectionContext(this.injector, () => {
+          const updateUser = httpsCallable(this.functions, 'delUser');
+          updateUser({
+            uid: user.id,
+          }).then(()=>{
+            this.snackBar.open('Usuário removido!', 'Fechar', { duration: 3000 });
+          }).catch(error => {
+            this.snackBar.open('Erro ao salvar dados!', 'Fechar', { duration: 3000 });
+          });
         });
       }
     });

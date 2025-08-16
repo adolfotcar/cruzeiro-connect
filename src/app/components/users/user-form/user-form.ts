@@ -125,17 +125,19 @@ export class UserForm implements OnInit{
   }
 
   createUser(){
-    const addUser = httpsCallable(this.functions, 'addUser');
-    addUser({
-      email: this.userForm.value.email_address,
-      password: this.userForm.value.password,
-      name: this.userForm.value.name,
-      is_admin: this.userForm.value.is_admin,
-      sectors: this.userForm.value.sectors
-    }).then(()=>{
-      this.savedSuccess();
-    }).catch(error => {
-      this.savedError();
+    runInInjectionContext(this.injector, () => {
+      const addUser = httpsCallable(this.functions, 'addUser');
+      addUser({
+        email: this.userForm.value.email_address,
+        password: this.userForm.value.password,
+        name: this.userForm.value.name,
+        is_admin: this.userForm.value.is_admin,
+        sectors: this.userForm.value.sectors
+      }).then(()=>{
+        this.savedSuccess();
+      }).catch(error => {
+        this.savedError();
+      });
     });
   }
 

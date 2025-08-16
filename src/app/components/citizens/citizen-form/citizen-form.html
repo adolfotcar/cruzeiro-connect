@@ -139,3 +139,39 @@
   }
   </mat-card-content>
 </mat-card>
+
+@if(citizenId){
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Anexos</mat-card-title>
+      <mat-card-subtitle>Anexe Arquivos a Este Cadastro</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content> 
+      <div class="file-upload-section">
+        <input type="file" (change)="onFileSelected($event)" multiple [disabled]="isUploading">
+        @if (isUploading) {
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Uploading...</span>
+        }
+      </div>
+
+      @if (uploadedFiles.length > 0) {
+        <mat-list>
+          <div mat-subheader>Arquivos Anexados</div>
+            @for (file of uploadedFiles; track file.name) {
+              <mat-list-item>
+                <mat-icon matListItemIcon>attach_file</mat-icon>
+                <div matListItemTitle>{{ file.name }}</div>
+                <div matListItemLine>
+                  <a [href]="file.url" target="_blank">Visualizar</a>
+                </div>
+                <button mat-icon-button (click)="removeFile(file)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </mat-list-item>
+            }
+        </mat-list>
+      }
+    </mat-card-content>
+  </mat-card>
+}
