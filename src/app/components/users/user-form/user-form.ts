@@ -140,29 +140,33 @@ export class UserForm implements OnInit{
   }
 
   updateUser(){
-    const updateUser = httpsCallable(this.functions, 'updateUser');
-    updateUser({
-      uid: this.userId,
-      email: this.userForm.value.email_address,
-      name: this.userForm.value.name,
-      is_admin: this.userForm.value.is_admin,
-      sectors: this.userForm.value.sectors
-    }).then(()=>{
-      this.savedSuccess();
-    }).catch(error => {
-      this.savedError();
+    runInInjectionContext(this.injector, () => {
+      const updateUser = httpsCallable(this.functions, 'updateUser');
+      updateUser({
+        uid: this.userId,
+        email: this.userForm.value.email_address,
+        name: this.userForm.value.name,
+        is_admin: this.userForm.value.is_admin,
+        sectors: this.userForm.value.sectors
+      }).then(()=>{
+        this.savedSuccess();
+      }).catch(error => {
+        this.savedError();
+      });
     });
   }
 
   updatePassword(){
-    const updateUser = httpsCallable(this.functions, 'changePassword');
-    updateUser({
-      uid: this.userId,
-      password: this.passwordForm.value.password
-    }).then(()=>{
-      this.savedSuccess();
-    }).catch(error => {
-      this.savedError();
+    runInInjectionContext(this.injector, () => {
+      const updateUser = httpsCallable(this.functions, 'changePassword');
+      updateUser({
+        uid: this.userId,
+        password: this.passwordForm.value.password
+      }).then(()=>{
+        this.savedSuccess();
+      }).catch(error => {
+        this.savedError();
+      });
     });
   }
 

@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, inject, Injector, OnInit, runInInjectionContext, ViewChild } from '@angular/core';
-import { Firestore, collection, collectionData, deleteDoc, doc } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, deleteDoc, doc, query, where } from '@angular/fire/firestore';
 import { Router, RouterLink } from "@angular/router";
 
 import { MatButtonModule } from '@angular/material/button';
@@ -76,21 +76,23 @@ export class CitizenList implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
+    //if user belongs to a sector, then only shows the citizens that are in those sectors
     this.loggedUser$.subscribe((user: AppUser | null) => {
-      this.citizens$.subscribe(citizens => {
-        //if user belongs to a sector, then only shows the citizens that are in those sectors
-        if (user!.sectors?.length) {
-          const filteredCitizens = citizens.filter((citizen: any) => {
-            return citizen.sector.some((s: any) => {
-              return user!.sectors?.includes(s);
-            })
+      if (user!.sectors?.length) {
+        runInInjectionContext(this.injector, () => {
+          const q = query(this.citizensCollection, where('sector', 'array-contains-any', user!.sectors));
+          collectionData(q, { idField: 'id' }).subscribe(citizens => {
+            this.dataSource.data = citizens as Citizen[];
           });
-          this.dataSource.data = filteredCitizens as Citizen[];
-        } else {
+        });
+      } 
+      //if no sectors in the user profile then returns everyone
+      else {
+        this.citizens$.subscribe(citizens => {
           this.dataSource.data = citizens as Citizen[];
-        }
-        this.isLoading = false;
-      });
+        });
+      }
+      this.isLoading = false;
     });
   }
 

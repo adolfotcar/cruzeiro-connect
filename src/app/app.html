@@ -7,7 +7,7 @@
   </span>
   <span class="spacer"></span>
   @if (user$ | async; as user) {
-    <span class="user-mail">{{ user.email }}</span>
+    <span class="user-mail">{{ user.name }}, {{ user.email }}</span>
     <button matIconButton matToolTip="Sair do Sistema" (click)="signOut()">
       <mat-icon class="text-white">exit_to_app</mat-icon>
     </button>
