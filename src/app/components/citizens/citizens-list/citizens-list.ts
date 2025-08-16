@@ -14,6 +14,9 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DeleteConfirmationDialogComponent } from '../../delete-confirmation/delete-confirmation';
+import { Observable } from 'rxjs';
+import { AuthService } from '../../../services/auth';
+import { AppUser } from '../../../models/app-user';
 
 interface Citizen {
   id?: string;
@@ -62,6 +65,8 @@ export class CitizenList implements OnInit, AfterViewInit {
   private snackBar = inject(MatSnackBar);
   private citizensCollection = collection(this.firestore, 'citizens');
   private citizens$ = collectionData(this.citizensCollection, { idField: 'id' });
+  private authSvc = inject(AuthService);
+  protected readonly loggedUser$: Observable<AppUser | null> = this.authSvc.user$;
 
   displayedColumns: string[] = ['name', 'surname', 'cpf', 'phone', 'ethnicity', 'actions'];
   dataSource = new MatTableDataSource<Citizen>();
@@ -71,9 +76,21 @@ export class CitizenList implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    this.citizens$.subscribe(citizens => {
-      this.dataSource.data = citizens as Citizen[];
-      this.isLoading = false;
+    this.loggedUser$.subscribe((user: AppUser | null) => {
+      this.citizens$.subscribe(citizens => {
+        //if user belongs to a sector, then only shows the citizens that are in those sectors
+        if (user!.sectors?.length) {
+          const filteredCitizens = citizens.filter((citizen: any) => {
+            return citizen.sector.some((s: any) => {
+              return user!.sectors?.includes(s);
+            })
+          });
+          this.dataSource.data = filteredCitizens as Citizen[];
+        } else {
+          this.dataSource.data = citizens as Citizen[];
+        }
+        this.isLoading = false;
+      });
     });
   }
 

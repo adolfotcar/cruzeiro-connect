@@ -35,7 +35,9 @@ export class AuthService {
   }
 
   public signIn(email: string, password: string){
-    return signInWithEmailAndPassword(this.auth, email, password);
+    return runInInjectionContext(this.injector, () => {
+      return signInWithEmailAndPassword(this.auth, email, password);
+    });
   }
 
   public signOut(): Promise<void> {
